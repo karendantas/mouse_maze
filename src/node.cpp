@@ -1,30 +1,30 @@
-#inlcude "node."
+#include "../include/node.h"
 #include <iostream>
 using namespace std;
 
-Node::Node(int x, int y){
-    this->x = x;
-    this->y = y;
-    this->next = NULL;
+Node::Node(int new_x, int new_y){
+    x = new_x;
+    y = new_y;
+    next = NULL;
 }
 
-Node::~Node(){}
+//Node::~Node(){}
 
-int Node::getx(){
-  return this->x;
+int Node::getX(){
+  return x;
 }
-int Node::gety(){
-  return this->y;
+int Node::getY(){
+  return y;
 }
-void Node::setx(int x){
-  this->x = x;
+void Node::setX(int new_x){
+   x = new_x;
 }
-void Node::sety(int y){
-  this->y = y;
+void Node::setY(int new_y){
+   y = new_y;
 }
-Node* Node::getnext(){
-  return this->next;
+Node* Node::getNext(){
+  return next;
 }
-void Node::setnext(Node *n){
-  this->next = n;
+void Node::setNext(Node *n){
+  next = n;
 }

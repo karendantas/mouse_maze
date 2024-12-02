@@ -1,6 +1,7 @@
+#include <iostream>
+
 #ifndef NODE_H
 #define NODE_H
-#include <iostream>
 
 class Node{
    int x;
@@ -8,13 +9,14 @@ class Node{
    Node *next;
 
    public:
-     Node(int x, int y);
+     Node(int new_x, int new_y);
      int getX();
      int getY();
-     void setX(int x);
-     void setY(int y);
+     void setX(int new_x);
+     void setY(int new_y);
+
      Node *getNext();
-     void setNext(Node *next);
+     void setNext(Node *n);
 
  };
 
