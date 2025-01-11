@@ -11,7 +11,7 @@ class Stack {
    public:
      Stack();
      void push(int x, int y);
-     void pop();
+     Node* pop();
 
      Node* peek();
      bool isEmpty();

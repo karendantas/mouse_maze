@@ -20,14 +20,16 @@ void Stack::push(int x, int y){
     top = newNode;
 }
 
-void Stack::pop(){
-  if(isEmpty()) return;
+Node* Stack::pop(){
+  if(isEmpty()) return NULL;
 
   Node *current = top;
 
   top = current->getNext();
   delete current;
   free(current);
+
+  return top;
 
 }
 

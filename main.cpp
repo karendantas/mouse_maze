@@ -1,18 +1,40 @@
-#include "include/node.h"
 #include "include/stack.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
-using namespace std;
+#include <unistd.h>
+#include <ctime>
+#include <cstdlib>
+#include <regex>
 
+using namespace std;
+const int limit  = 20;
+
+//sfml depois eu vejo
+class Position {
+  public:
+  int x;
+  int y;
+  Position(int x, int y): x(x), y(y) {}
+};
+
+void showMaze(char maze[limit][limit],const int rows, const int cols) {
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      cout << maze[i][j] << " ";
+    }
+    cout << endl;
+  }
+}
 
 int main (){
   ifstream maze_file("src/maze.txt");
-  string line;
 
   // -- pegando linha  e coluna
   int rows, cols;
 
+
+  // -- pegando tamanho da matriz
   string dimension_line;
   getline(maze_file, dimension_line);
   stringstream ss(dimension_line);
@@ -20,28 +42,29 @@ int main (){
 
   ss >> rows >> x_separator >> cols;
   cout << rows << " " << x_separator << " " << cols << endl;
-  // --
 
-  // -- pegando a matriz
 
-  char maze[rows][cols];
+  // -- Criando a matriz com base no arquivo
 
-  string paths_inline;
+  char maze[limit][limit];
+  string line;
+  string path_inline;
+
   while (getline(maze_file, line)) {
-    paths_inline += line;
-
+    path_inline += line;
   }
-  cout << paths_inline << endl;
-  stringstream maze_lines(paths_inline);
 
-  char num;
-  int row = 0, col = 0;
-  while (maze_lines >> num) {
-    maze[row][col] = num;
-    row++;
-    if (row == 4) {
-      row = 0;
-      col++;
+  // -- removendo espaços
+  regex space_regex("\\s+");
+  path_inline = regex_replace(path_inline,space_regex ,"");
+  cout << path_inline << endl;
+
+  int index = 0;
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (index < path_inline.size()) {
+        maze[i][j] = path_inline[index++];
+      }
     }
   }
 
@@ -52,43 +75,66 @@ int main (){
     }
     cout << "" << endl;
   }
-  // --
 
-  Stack stack1;
+  // - pegando posições do mouse
+  Position mousePosition(0, 0);
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (maze[i][j] == 'q') {
+        mousePosition.x = i;
+        mousePosition.y = j;
+      }
+    }
+  }
 
-  stack1.push(10, 2);
-  stack1.push(3, 4);
-  stack1.push(5, 6);
-  cout << stack1;
-  stack1.pop();
-  cout << endl;
-  cout << stack1;
+  // -- percorrendo labirinto
+  Stack backTrack;
+  int IAnterior = 0, JAnterior = 0;
+  int x = mousePosition.x, y = mousePosition.y;
+
+  do {
+    if (maze[x][y-1] == 'q' || maze[x][y+1] == 'q' || maze[x - 1][y] == 'q' || maze[x + 1][y] == 'q') {
+      cout << "O Rato achou o queijo!";
+      break;
+    }
+
+    if (maze[x][y-1] == '0') {
+      JAnterior = y;
+      IAnterior = x;
+      backTrack.push(x, y);
+      y--;
+    } else if (maze[x][y+1] == '0') {
+      JAnterior = y;
+      IAnterior = x;
+      backTrack.push(x, y);
+      y++;
+    }else if (maze[x-1][y] == '0') {
+      IAnterior = x;
+      JAnterior = y;
+      backTrack.push(x, y);
+      x--;
+    } else if (maze[x+1][y] == '0') {
+      IAnterior = x;
+      JAnterior = y;
+      backTrack.push(x, y);
+      x++;
+    } else if (!backTrack.isEmpty()) {
+      IAnterior = x;
+      JAnterior = y;
+      Node* top = backTrack.pop();
+      x = top->getX();
+      y = top->getY();
+    } else {
+      cout << "Nao foi possivel encontrar uma saída!";
+      break;
+    }
+    sleep(1);
+    system("cls");
+    showMaze(maze, rows, cols);
+    maze[IAnterior][JAnterior] = '.';
+
+  } while (maze[x][y] != 'q');
 
   return 0;
   }
 
-//1 pilha - armazena os caminhos disponiveis
-//
-// 1, 3
-// 1, 2
-// 2, 2
-// 2, 1
-// 3, 1
-//
-// 2 pilha - armazrna as posições que o rato percorreu
-
-
-#include <iostream>
-#include <sstream>  // Para usar stringstream
-
-// int main() {
-//   std::string data = "10 20 30 40";
-//   std::stringstream ss(data);  // Inicializa o stringstream com a string
-//
-//   int num;
-//   while (ss >> num) {  // Lê os números até o final da string
-//     std::cout << num << std::endl;
-//   }
-//
-//   return 0;
-// }
