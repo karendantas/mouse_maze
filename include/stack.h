@@ -10,8 +10,9 @@ class Stack {
    Node *top;
    public:
      Stack();
+    ~Stack();
      void push(int x, int y);
-     void pop();
+     Node* pop();
 
      Node* peek();
      bool isEmpty();
