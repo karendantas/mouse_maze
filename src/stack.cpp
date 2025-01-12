@@ -5,8 +5,12 @@ using namespace std;
 Stack::Stack(){
     top = NULL;
 }
-//Stack::~Stack(){}
 
+Stack::~Stack(){
+    while (!isEmpty()) {
+        pop();
+    }
+}
 bool Stack::isEmpty(){
   return top == NULL;
 }
@@ -24,12 +28,10 @@ Node* Stack::pop(){
   if(isEmpty()) return NULL;
 
   Node *current = top;
-
-  top = current->getNext();
+  top = top->getNext();
   delete current;
-  free(current);
-
   return top;
+
 
 }
 

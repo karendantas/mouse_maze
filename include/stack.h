@@ -10,6 +10,7 @@ class Stack {
    Node *top;
    public:
      Stack();
+    ~Stack();
      void push(int x, int y);
      Node* pop();
 

@@ -6,11 +6,12 @@
 #include <ctime>
 #include <cstdlib>
 #include <regex>
-
 using namespace std;
 const int limit  = 20;
 
-//sfml depois eu vejo
+void createMaze(char maze[limit][limit], int &rows, int &cols);
+void showMaze(char maze[limit][limit], int rows, int cols);
+
 class Position {
   public:
   int x;
@@ -18,21 +19,90 @@ class Position {
   Position(int x, int y): x(x), y(y) {}
 };
 
-void showMaze(char maze[limit][limit],const int rows, const int cols) {
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      cout << maze[i][j] << " ";
-    }
-    cout << endl;
-  }
-}
+
 
 int main (){
-  ifstream maze_file("src/maze.txt");
-
-  // -- pegando linha  e coluna
   int rows, cols;
+  char maze[limit][limit];
+  createMaze(maze, rows, cols);
 
+
+  // -- pegando posições do gabiru
+  Position mousePosition(0, 0);
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (maze[i][j] == 'm') {
+        mousePosition.x = i;
+        mousePosition.y = j;
+      }
+    }
+  }
+
+  Position cheesePosition(0, 0);
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      if (maze[i][j] == 'q') {
+        cheesePosition.x = i;
+        cheesePosition.y = j;
+      }
+    }
+  }
+
+  // -- percorrendo labirinto
+  Stack backTrack, currentPosition;
+  int x = mousePosition.x, y = mousePosition.y;
+
+  currentPosition.push(x,y);
+  do {
+    maze[x][y] = 'm';
+    if (maze[x][y] == 'q' ) {
+      cout << "Achou o queijo";
+      break;
+    }
+    if (maze[x][y+1] == '0' ) {
+
+      backTrack.push(x, y);
+      currentPosition.push(x,y);
+      y++;
+    } else if (maze[x+1][y] == '0'   ) {
+
+      backTrack.push(x, y);
+      currentPosition.push(x,y);
+      x++;
+    }else if (maze[x][y-1] == '0'   ) {
+      backTrack.push(x, y);
+      currentPosition.push(x,y);
+      y--;
+    } else if (maze[x-1][y] == '0' ) {
+      backTrack.push(x, y);
+      currentPosition.push(x,y);
+      x--;
+    } else {
+      if (!backTrack.isEmpty()) {
+        currentPosition.push(x, y);
+        Node* top = backTrack.pop();
+        x = top->getX();
+        y = top->getY();
+      }else {
+        cout << "Nao foi possivel encontrar uma saida!";
+        break;
+
+      }
+    }
+    sleep(1);
+    system("cls");
+    showMaze(maze, rows, cols);
+
+    maze[currentPosition.top->getX()][currentPosition.top->getY()] = '.';
+
+    currentPosition.peek();
+  } while (maze[x][y] != 'q');
+
+  return 0;
+  }
+
+void createMaze(char maze[limit][limit], int &rows, int &cols) {
+  ifstream maze_file("src/maze.txt");
 
   // -- pegando tamanho da matriz
   string dimension_line;
@@ -46,7 +116,6 @@ int main (){
 
   // -- Criando a matriz com base no arquivo
 
-  char maze[limit][limit];
   string line;
   string path_inline;
 
@@ -68,73 +137,13 @@ int main (){
     }
   }
 
-  cout << "Maze:"<<endl;
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      cout << maze[i][j];
-    }
-    cout << "" << endl;
-  }
+}
 
-  // - pegando posições do mouse
-  Position mousePosition(0, 0);
+void showMaze(char maze[limit][limit],const int rows, const int cols) {
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
-      if (maze[i][j] == 'q') {
-        mousePosition.x = i;
-        mousePosition.y = j;
-      }
+      cout << maze[i][j] << " ";
     }
+    cout << endl;
   }
-
-  // -- percorrendo labirinto
-  Stack backTrack;
-  int IAnterior = 0, JAnterior = 0;
-  int x = mousePosition.x, y = mousePosition.y;
-
-  do {
-    if (maze[x][y-1] == 'q' || maze[x][y+1] == 'q' || maze[x - 1][y] == 'q' || maze[x + 1][y] == 'q') {
-      cout << "O Rato achou o queijo!";
-      break;
-    }
-
-    if (maze[x][y-1] == '0') {
-      JAnterior = y;
-      IAnterior = x;
-      backTrack.push(x, y);
-      y--;
-    } else if (maze[x][y+1] == '0') {
-      JAnterior = y;
-      IAnterior = x;
-      backTrack.push(x, y);
-      y++;
-    }else if (maze[x-1][y] == '0') {
-      IAnterior = x;
-      JAnterior = y;
-      backTrack.push(x, y);
-      x--;
-    } else if (maze[x+1][y] == '0') {
-      IAnterior = x;
-      JAnterior = y;
-      backTrack.push(x, y);
-      x++;
-    } else if (!backTrack.isEmpty()) {
-      IAnterior = x;
-      JAnterior = y;
-      Node* top = backTrack.pop();
-      x = top->getX();
-      y = top->getY();
-    } else {
-      cout << "Nao foi possivel encontrar uma saída!";
-      break;
-    }
-    sleep(1);
-    system("cls");
-    showMaze(maze, rows, cols);
-    maze[IAnterior][JAnterior] = '.';
-
-  } while (maze[x][y] != 'q');
-
-  return 0;
-  }
-
+}
